@@ -1,0 +1,22 @@
+node_modules
+dist
+.env
+dev.db
+dev.db-journal
+
+# Log files
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-lock.yaml
+
+# Editor directories and files
+
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
