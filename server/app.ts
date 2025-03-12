@@ -1,6 +1,6 @@
 import express from 'express'
 import cors from 'cors'
-import { corsOptions } from './config'
+import { corsOptions } from './config/config'
 import morgan from 'morgan'
 import pokemoneRoutes from './routes/pokemon.routes'
 
