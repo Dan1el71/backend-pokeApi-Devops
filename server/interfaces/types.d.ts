@@ -86,3 +86,8 @@ interface ErrorResponse {
   message: string
   error: string
 }
+
+interface PokemonResult {
+  name: string
+  url: string
+}

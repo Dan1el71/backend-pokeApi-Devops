@@ -72,7 +72,7 @@ export const getPokemonPagination = async (
       next: data.next,
       previous: data.previous,
       results: data.results.map((pokemon: any) => ({
-        id: pokemon.url.split('/').filter(Boolean).pop(),
+        id: pokemon.url.match(/\/(\d+)\/$/)?.[1] || '',
         name: pokemon.name,
       })),
     }
@@ -88,6 +88,42 @@ export const getPokemonPagination = async (
     res.status(500).json({
       message: 'Error al obtener la lista de Pokémon',
       error: error.message,
+    })
+  }
+}
+
+export const pokemonSearch = async (req: Request, res: Response) => {
+  try {
+    const { searchTerm } = req.query as { searchTerm?: string }
+
+    if (!searchTerm || typeof searchTerm !== 'string') {
+      res.status(400).json({ error: 'Parámetro searchTerm inválido' })
+      return
+    }
+
+    const normalizedSearch = searchTerm.trim().toLowerCase()
+
+    const { data } = await axios.get<{ results: PokemonResult[] }>('/pokemon', {
+      params: { limit: 1000 },
+      timeout: 5000,
+    })
+
+    const results = data.results
+      .filter(({ name }) => name.toLowerCase().includes(normalizedSearch))
+      .slice(0, 5)
+      .map(({ name, url }) => ({
+        id: url.match(/\/(\d+)\/$/)?.[1] || '0',
+        name,
+      }))
+
+    res.status(200).json({
+      data: results,
+    })
+  } catch (error) {
+    console.error('Error en búsqueda:', error)
+    res.status(500).json({
+      message: 'Error al buscar Pokémon',
+      error: error,
     })
   }
 }
