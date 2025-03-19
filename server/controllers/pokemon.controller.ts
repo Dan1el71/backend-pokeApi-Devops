@@ -110,7 +110,7 @@ export const pokemonSearch = async (req: Request, res: Response) => {
 
     const results = data.results
       .filter(({ name }) => name.toLowerCase().includes(normalizedSearch))
-      .slice(0, 5)
+      .slice(0, 8)
       .map(({ name, url }) => ({
         id: url.match(/\/(\d+)\/$/)?.[1] || '0',
         name,
