@@ -68,5 +68,21 @@ interface PaginationParams {
 interface PokemonResponse {
   message: string
   data?: any
-  error?: string
+}
+
+interface PaginationResponse {
+  count: number
+  next: string
+  previous: string
+  results: [
+    {
+      id: number
+      name: string
+    }
+  ]
+}
+
+interface ErrorResponse {
+  message: string
+  error: string
 }

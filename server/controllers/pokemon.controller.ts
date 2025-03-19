@@ -4,7 +4,7 @@ import { parseData, processEvolutionChainData } from '../utils/utils'
 
 export const getPokemon = async (
   req: Request<{ id: string }>,
-  res: Response<PokemonResponse>
+  res: Response<PokemonResponse | ErrorResponse>
 ) => {
   const { id } = req.params
 
@@ -52,17 +52,13 @@ export const getPokemon = async (
 
 export const getPokemonPagination = async (
   req: Request<{}, {}, {}, PaginationParams>,
-  res: Response<PokemonResponse>
+  res: Response<PaginationResponse | ErrorResponse>
 ) => {
   const { limit = 12, offset = 0 } = req.query
 
   try {
     const parsedLimit = Number(limit)
     const parsedOffset = Number(offset)
-
-    if (isNaN(parsedLimit) || isNaN(parsedOffset)) {
-      res.status(400).json({ message: 'Parámetros inválidos' })
-    }
 
     const { data } = await axios.get('/pokemon', {
       params: {
@@ -76,14 +72,16 @@ export const getPokemonPagination = async (
       next: data.next,
       previous: data.previous,
       results: data.results.map((pokemon: any) => ({
-        name: pokemon.name,
         id: pokemon.url.split('/').filter(Boolean).pop(),
+        name: pokemon.name,
       })),
     }
 
     res.status(200).json({
-      message: 'Lista de Pokémon obtenida exitosamente',
-      data: paginatedResults,
+      count: paginatedResults.count,
+      next: paginatedResults.next,
+      previous: paginatedResults.previous,
+      results: paginatedResults.results,
     })
   } catch (error: any) {
     console.error('Error en paginación:', error.message)
