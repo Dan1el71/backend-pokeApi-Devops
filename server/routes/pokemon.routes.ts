@@ -1,9 +1,12 @@
 import { Router } from 'express'
-import { getPokemon } from '../controllers/pokemon.controller'
+import {
+  getPokemon,
+  getPokemonPagination,
+} from '../controllers/pokemon.controller'
 
 const route = Router()
 
+route.get('/pokemon', getPokemonPagination)
 route.get('/pokemon/:id', getPokemon)
-
 
 export default route
