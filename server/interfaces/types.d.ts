@@ -21,12 +21,12 @@ interface PokemonEvolutionChain {
   image: string
 }
 
-interface PokemonHability {
+interface PokemonAbility {
   isHidden: boolean
   name: string
 }
 
-interface Pokemontypes {
+interface PokemonType {
   name: string
 }
 
