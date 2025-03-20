@@ -94,14 +94,18 @@ export const getPokemonPagination = async (
 
 export const pokemonSearch = async (req: Request, res: Response) => {
   try {
-    const { searchTerm } = req.query as { searchTerm?: string }
+    const searchTerm = req.query.searchTerm?.toString().trim().toLowerCase()
 
-    if (!searchTerm || typeof searchTerm !== 'string') {
-      res.status(400).json({ error: 'Parámetro searchTerm inválido' })
-      return
+    if (!searchTerm) {
+      return res.status(400).json({ error: 'Parámetro searchTerm inválido' })
     }
 
-    const normalizedSearch = searchTerm.trim().toLowerCase()
+    if (!isNaN(Number(searchTerm))) {
+      const { data } = await axios.get(`/pokemon/${searchTerm}`)
+      return res.status(200).json({
+        data: [{ id: data.id, name: data.name }],
+      })
+    }
 
     const { data } = await axios.get<{ results: PokemonResult[] }>('/pokemon', {
       params: { limit: 1000 },
@@ -109,21 +113,16 @@ export const pokemonSearch = async (req: Request, res: Response) => {
     })
 
     const results = data.results
-      .filter(({ name }) => name.toLowerCase().includes(normalizedSearch))
+      .filter(({ name }) => name.includes(searchTerm))
       .slice(0, 8)
       .map(({ name, url }) => ({
         id: url.match(/\/(\d+)\/$/)?.[1] || '0',
         name,
       }))
 
-    res.status(200).json({
-      data: results,
-    })
+    res.status(200).json({ data: results })
   } catch (error) {
     console.error('Error en búsqueda:', error)
-    res.status(500).json({
-      message: 'Error al buscar Pokémon',
-      error: error,
-    })
+    res.status(500).json({ message: 'Error al buscar Pokémon', error })
   }
 }
