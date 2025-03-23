@@ -7,8 +7,8 @@ interface Pokemon {
   baseExperience: number
   description: string
   image: string
-  abilities: PokemonHability[]
-  types: PokemonTypes[]
+  abilities: PokemonAbility[]
+  types: PokemonType[]
   stats: PokemonStat[]
   sprites: PokemonSprites
   moves: PokemonMove[]
@@ -42,7 +42,7 @@ interface PokemonSprites {
   back_shiny: string | null
 }
 
-interface PokemonMoves {
+interface PokemonMove {
   name: string
 }
 
