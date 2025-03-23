@@ -1,0 +1,77 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Pokemon {
+  id                             Int                    @id @default(autoincrement())
+  name                           String                 @unique
+  height                         Float
+  weight                         Float
+  habitat                        String
+  baseExperience                 Int
+  description                    String
+  image                          String
+  sprites                        PokemonSprites?        @relation(fields: [pokemonSpritesId], references: [id])
+  abilities                      PokemonAbility[]       @relation("PokemonAbilities")
+  types                          PokemonType[]          @relation("PokemonTypes")
+  stats                          PokemonStat[]
+  moves                          Move[]                 @relation("PokemonMoves")
+  evolutionChain                 PokemonEvolutionChain? @relation(fields: [pokemonEvolutionChainPokemonId], references: [pokemonId])
+  pokemonSpritesId               Int?                   @unique
+  pokemonEvolutionChainPokemonId Int?
+}
+
+model PokemonAbility {
+  id       Int       @id @default(autoincrement())
+  name     String    @unique
+  isHidden Boolean
+  pokemons Pokemon[] @relation("PokemonAbilities")
+}
+
+model PokemonType {
+  id       Int       @id @default(autoincrement())
+  name     String    @unique
+  pokemons Pokemon[] @relation("PokemonTypes")
+}
+
+model Stat {
+  id    Int           @id @default(autoincrement())
+  name  String        @unique
+  stats PokemonStat[]
+}
+
+model PokemonStat {
+  id        Int     @id @default(autoincrement())
+  value     Int
+  statId    Int
+  pokemonId Int
+  stat      Stat    @relation(fields: [statId], references: [id])
+  pokemon   Pokemon @relation(fields: [pokemonId], references: [id])
+}
+
+model PokemonSprites {
+  id            Int      @id @default(autoincrement())
+  front_default String?
+  back_default  String?
+  front_shiny   String?
+  back_shiny    String?
+  pokemon       Pokemon?
+}
+
+model Move {
+  id       Int       @id @default(autoincrement())
+  name     String    @unique
+  pokemons Pokemon[] @relation("PokemonMoves")
+}
+
+model PokemonEvolutionChain {
+  pokemonId Int       @id
+  name      String
+  image     String
+  Pokemon   Pokemon[]
+}
