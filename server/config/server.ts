@@ -10,5 +10,4 @@ export const corsOptions = {
 export const {
   PORT = 3000,
   API_URL = 'https://pokeapi.co/api/v2',
-  REDIS_URL,
 } = process.env
