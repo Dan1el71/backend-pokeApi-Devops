@@ -38,6 +38,7 @@ export const savePokemon = async (pokemonData: Pokemon) => {
         pokemonId: evolution.id,
         name: evolution.name,
         image: evolution.image,
+        relatedEvolutions: evolutionChain.map((e) => e.id),
       },
     })
   }
@@ -169,39 +170,25 @@ export const getPokemonById = async (
   const { front_default, back_default, front_shiny, back_shiny } =
     foundPokemon.sprites!
 
+  const evolutionChain = (
+    await prisma.pokemonEvolutionChain.findMany({
+      where: {
+        pokemonId: { in: foundPokemon.evolutionChain?.relatedEvolutions },
+      },
+      select: { pokemonId: true, name: true, image: true },
+    })
+  ).map(({ pokemonId, name, image }) => ({
+    id: pokemonId,
+    name,
+    image,
+  }))
+
   const sprites: PokemonSprites = {
     front_default,
     back_default,
     front_shiny,
     back_shiny,
   }
-
-  const [prevEvolution, nextEvolution] = await Promise.all([
-    prisma.pokemonEvolutionChain.findFirst({
-      where: { pokemonId: id - 1 },
-    }),
-    prisma.pokemonEvolutionChain.findFirst({
-      where: { pokemonId: id + 1 },
-    }),
-  ])
-
-  const evolutionChain: PokemonEvolutionChain[] = [
-    prevEvolution && {
-      id: prevEvolution.pokemonId,
-      name: prevEvolution.name,
-      image: prevEvolution.image,
-    },
-    {
-      id,
-      name,
-      image,
-    },
-    nextEvolution && {
-      id: nextEvolution.pokemonId,
-      name: nextEvolution.name,
-      image: nextEvolution.image,
-    },
-  ].filter(Boolean) as PokemonEvolutionChain[]
 
   return {
     id,
