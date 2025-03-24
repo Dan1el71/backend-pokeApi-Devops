@@ -77,7 +77,7 @@ export const getPokemonPagination = async (
   req: Request<{}, {}, {}, PaginationParams>,
   res: Response<PaginationResponse | ErrorResponse>
 ) => {
-  const { limit = 12, offset = 0 } = req.query
+  const { limit = 12, offset = 0, populate } = req.query
 
   try {
     const parsedLimit = Number(limit)
@@ -89,6 +89,40 @@ export const getPokemonPagination = async (
         offset: parsedOffset,
       },
     })
+
+    if (populate) {
+      const pokemons = await Promise.all(
+        data.results.map(async (pokemon: PokemonResult) => {
+          const pokemonRes = await axios.get(pokemon.url)
+          const speciesRes = await axios.get(pokemonRes.data.species.url)
+
+          let evolutionChain: PokemonEvolutionChain[] = []
+          if (speciesRes.data.evolution_chain?.url) {
+            const evolutionRes = await axios.get(
+              speciesRes.data.evolution_chain.url
+            )
+            evolutionChain = await processEvolutionChainData(
+              evolutionRes.data.chain,
+              async (url: string) => {
+                const response = await axios.get(url)
+                return response.data
+              }
+            )
+          }
+
+          return parseData(pokemonRes.data, speciesRes.data, evolutionChain)
+        })
+      )
+
+      res.status(200).json({
+        count: data.count,
+        next: data.next,
+        previous: data.previous,
+        data: pokemons,
+      })
+
+      return
+    }
 
     const paginatedResults = {
       count: data.count,
